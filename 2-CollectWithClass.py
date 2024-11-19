@@ -2,12 +2,14 @@ import re
 import textwrap
 from nntplib import NNTP
 from urllib.request import urlopen
+from argparse import ArgumentParser, Namespace
 
 
 class NewsItem:
     def __init__(self, title, body):
         self.title = title
         self.body = body
+
 
 class NewsAgent:
     def __init__(self):
@@ -26,6 +28,7 @@ class NewsAgent:
             items.extend(source.getItems())
         for destination in self.destinations:
             destination.receive(items)
+
 
 class NntpSource:
     def __init__(self, host, group):
@@ -47,6 +50,7 @@ class NntpSource:
             yield NewsItem(title, body)
         server.quit()
 
+
 class SimpleHtmlSource:
     def __init__(self, url, titlePattern, bodyPattern, encoding="utf8"):
         self.url = url
@@ -61,11 +65,13 @@ class SimpleHtmlSource:
         for title, body in zip(titles, bodies):
             yield NewsItem(title, textwrap.fill(body) + '\n')
 
+
 class PlainTextDestination:
     def receive(self, items):
         for item in items:
             print(item.title)
             print(item.body)
+
 
 class HtmlDestination:
     def __init__(self, filename):
@@ -85,33 +91,57 @@ class HtmlDestination:
         for item in items:
             id += 1
             print(' ' * 12 + '<li><a href="#{}">{}</a></li>'
-              .format(id, item.title), file=out)
+                  .format(id, item.title), file=out)
         print(' ' * 8 + "</ul>", file=out)
         id = 0
         for item in items:
             id += 1
             print(' ' * 8 + '<h2><a id="{}">{}</a></h2>'
-              .format(id, item.title), file=out)
+                  .format(id, item.title), file=out)
             print(' ' * 8 + '<pre>{}        </pre>'.format(item.body), file=out)
         print("""    </body>
 </html>""", file=out)
 
-def runDefaultSetup():
+
+def runDefaultSetup(args: Namespace):
     agent = NewsAgent()
     bbcUrl = 'https://bbc.com'
     bbcTitle = r'<h2 data-testid="card-headline".*?>(.*?)<.*?/h2>(?:</div>){2}<p data-testid="card-description".*?>.*?</p>'
     bbcBody = r'<h2 data-testid="card-headline".*?>.*?<.*?/h2>(?:</div>){2}<p data-testid="card-description".*?>(.*?)</p>'
     bbc = SimpleHtmlSource(bbcUrl, bbcTitle, bbcBody, 'utf-8')
-    host = input("NNTP host: ") #freenews.netfront.net
-    group = input("NNTP group: ") #free.tampon.tim.walz
-    source = NntpSource(host, group)
-    maxCount = int(input("Max news count: "))
-    source.setMaxCount(maxCount)
-    agent.addSource(source)
-    agent.addSource(bbc)
-    agent.addDestination(PlainTextDestination())
-    agent.addDestination(HtmlDestination("test.html"))
+    nntpHost = args.host  # freenews.netfront.net
+    nntpGroup = args.group  # free.tampon.tim.walz
+    nntpSource = NntpSource(nntpHost, nntpGroup)
+    maxCount = args.count
+    nntpSource.setMaxCount(maxCount)
+    for sourceName in args.source:
+        if sourceName == 'bbc':
+            agent.addSource(bbc)
+        elif sourceName == 'nntp':
+            agent.addSource(nntpSource)
+        else:
+            print("Unknown source \"{}\"".format(sourceName))
+            return
+    if args.file is None:
+        agent.addDestination(PlainTextDestination())
+    else:
+        agent.addDestination(HtmlDestination(args.file))
     agent.distributeNews()
 
+
 if __name__ == '__main__':
-    runDefaultSetup()
+    parser = ArgumentParser(
+        prog='NewsCollector',
+        description="A program to collect news from different sources"
+    )
+    parser.add_argument("-s", "--source", nargs='+', required=True,
+                        help="News sources, available values are 'bbc' and 'nntp'")
+    parser.add_argument("-f", "--file", default=None,
+                        help="The file to store result, if not specified, results go to stdout")
+    parser.add_argument("-H", "--host", default="freenews.netfront.net",
+                        help="NNTP host, default freenews.netfront.net")
+    parser.add_argument("-g", "--group", default="free.tampon.tim.walz",
+                        help="NNTP group, default free.tampon.tim.walz")
+    parser.add_argument("-c", "--count", default=10, type=int, help="Number of news to collect, default 10 (NNTP only)")
+    args = parser.parse_args()
+    runDefaultSetup(args)
