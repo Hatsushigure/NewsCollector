@@ -94,21 +94,24 @@ class HtmlDestination:
               .format(id, item.title), file=out)
             print(' ' * 8 + '<pre>{}        </pre>'.format(item.body), file=out)
         print("""    </body>
-</html>
-        """, file=out)
+</html>""", file=out)
 
-agent = NewsAgent()
-bbcUrl = 'https://bbc.com'
-bbcTitle = r'<h2.*?>(.*?)<'
-bbcBody = r'</h2></div></div><p.*?>(.*?)</p>'
-bbc = SimpleHtmlSource(bbcUrl, bbcTitle, bbcBody, 'utf-8')
-# host = input("NNTP host: ") #freenews.netfront.net
-# group = input("NNTP group: ") #free.tampon.tim.walz
-# source = NntpSource(host, group)
-# maxCount = int(input("Max news count: "))
-# source.setMaxCount(maxCount)
-# agent.addSource(source)
-agent.addSource(bbc)
-# agent.addDestination(PlainTextDestination())
-agent.addDestination(HtmlDestination("test.html"))
-agent.distributeNews()
+def runDefaultSetup():
+    agent = NewsAgent()
+    bbcUrl = 'https://bbc.com'
+    bbcTitle = r'<h2 data-testid="card-headline".*?>(.*?)<.*?/h2>(?:</div>){2}<p data-testid="card-description".*?>.*?</p>'
+    bbcBody = r'<h2 data-testid="card-headline".*?>.*?<.*?/h2>(?:</div>){2}<p data-testid="card-description".*?>(.*?)</p>'
+    bbc = SimpleHtmlSource(bbcUrl, bbcTitle, bbcBody, 'utf-8')
+    host = input("NNTP host: ") #freenews.netfront.net
+    group = input("NNTP group: ") #free.tampon.tim.walz
+    source = NntpSource(host, group)
+    maxCount = int(input("Max news count: "))
+    source.setMaxCount(maxCount)
+    agent.addSource(source)
+    agent.addSource(bbc)
+    agent.addDestination(PlainTextDestination())
+    agent.addDestination(HtmlDestination("test.html"))
+    agent.distributeNews()
+
+if __name__ == '__main__':
+    runDefaultSetup()
