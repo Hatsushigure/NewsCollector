@@ -1,11 +1,11 @@
 from nntplib import NNTP
 import datetime
 
-address = "nntp.perl.org"
+address = "freenews.netfront.net"
 newsCount = 10
 server = NNTP(address)
 print(server.getwelcome())
-resp, count, first, last, name = server.group("perl.daily-build.reports")
+resp, count, first, last, name = server.group("free.tampon.tim.walz")
 print(resp)
 resp, overviews = server.over((last - newsCount + 1, last))
 for newsId, over in overviews:
