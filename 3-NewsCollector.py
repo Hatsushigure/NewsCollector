@@ -1,3 +1,4 @@
+from HtmlDestination import HtmlDestination
 from SimpleHtmlSource import SimpleHtmlSource
 from NewsDistributor import NewsDistributor
 from PlainTextDestination import PlainTextDestination
@@ -13,9 +14,12 @@ def main():
     )
     newsDistributor = NewsDistributor()
     plainTextDestination = PlainTextDestination("test.txt")
+    htmlDestination = HtmlDestination("test.html")
     newsDistributor.addSource(nntpSource)
     newsDistributor.addSource(htmlSource)
-    newsDistributor.addDestination(plainTextDestination)
+    (newsDistributor
+     .addDestination(plainTextDestination)
+     .addDestination(htmlDestination))
     newsDistributor.distributeNews()
 
 
