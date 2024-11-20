@@ -1,5 +1,4 @@
 from nntplib import NNTP, decode_header
-
 from NewsItem import NewsItem
 
 
@@ -14,18 +13,21 @@ class NNTPSource:
 
     def setHost(self, host):
         self.host = host
+        return self
 
     def getGroup(self):
         return self.group
 
     def setGroup(self, group):
         self.group = group
+        return self
 
     def getMaxCount(self):
         return self.maxCount
 
     def setMaxCount(self, maxCount):
         self.maxCount = maxCount
+        return self
 
     def getItems(self):
         server = NNTP(self.host)
@@ -36,5 +38,5 @@ class NNTPSource:
         for newsId, overview in overviews:
             title = decode_header(overview["subject"])
             resp, info = server.body(newsId)
-            body = '\n'.join(line.decode("latin") for line in info.lines)
+            body = "\n".join(line.decode("latin") for line in info.lines)
             yield NewsItem(title, body, self.host + " (NNTP)")
