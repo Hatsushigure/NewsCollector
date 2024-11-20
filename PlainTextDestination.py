@@ -3,7 +3,10 @@ from sys import stdout
 
 class PlainTextDestination:
     def __init__(self, file=stdout):
-        self.outFile = open(file, "w", encoding="utf-8")
+        if file == stdout:
+            self.outFile = stdout
+        else:
+            self.outFile = open(file, "w", encoding="utf-8")
 
     def receive(self, items):
         for item in items:
