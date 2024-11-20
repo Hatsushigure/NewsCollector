@@ -32,7 +32,9 @@ class HtmlDestination:
 """, end = "", file=self.outFile)
             id += 1
             print(f"""
-        <pre>{item.body}</pre>
+        <p>
+            {item.body.replace("<", "&lt;").replace("\n", "<br>")}
+        </p>
 """, end = "", file=self.outFile)
         print(f"""
     </body>
