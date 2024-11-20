@@ -11,6 +11,13 @@ class HtmlDestination:
     <head>
         <meta charset="{self.encoding}">
         <title>{self.title}</title>
+        <style type="text/css">
+        body {{
+            max-width: 1200px;
+            margin: 0 auto;
+        }}
+
+        </style>
     </head>
     <body>
         <h1>{self.title}</h1>
