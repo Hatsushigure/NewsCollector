@@ -13,7 +13,7 @@ class HtmlDestination:
         <title>{self.title}</title>
         <style type="text/css">
         body {{
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
         }}
 
@@ -40,7 +40,7 @@ class HtmlDestination:
             id += 1
             print(f"""
         <p>
-            {item.body.replace("<", "&lt;").replace("\n", "<br>")}
+            {item.body.replace("<", "&lt;").replace("\n", "\n<br />\n")}
         </p>
 """, end = "", file = self.outFile)
         print(f"""

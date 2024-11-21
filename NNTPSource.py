@@ -40,3 +40,4 @@ class NNTPSource:
             resp, info = server.body(newsId)
             body = "\n".join(line.decode("latin") for line in info.lines)
             yield NewsItem(title, body, self.host + " (NNTP)")
+        server.quit()
