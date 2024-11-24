@@ -30,6 +30,7 @@ def main():
 
     if "nntp" in args.source:
         nntpSource = NNTPSource(args.host, args.group)
+        nntpSource.setMaxCount(args.count)
         newsDistributor.addSource(nntpSource)
     if "lagacy" in args.source:
         htmlSource = SimpleHtmlSource(
